@@ -1,0 +1,32 @@
+-- PROCEDURE: public.datadummy()
+
+-- DROP PROCEDURE public.datadummy();
+
+CREATE OR REPLACE PROCEDURE public.datadummy(
+	)
+LANGUAGE 'plpgsql'
+AS $BODY$
+DECLARE
+	var2_text TEXT := '';
+BEGIN  
+	
+	truncate public.product;
+
+	for id in 1..200000
+		loop
+		SELECT array_to_string(array 
+       ( 
+              select substr('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', trunc(random() * 62)::integer + 1, 1)
+              FROM   generate_series(1, 5)), '') into var2_text ;
+   			INSERT INTO public.product(
+	product_name, product_code, brand, category, price,  status)
+	VALUES (
+		CONCAT('product - ', var2_text) ,
+				substr(md5(CONCAT(random()::text,id)), 0, 10),
+				CONCAT('cate', floor(random()*(10-1+1))+1),
+				CONCAT('brand', floor(random()*(5-1+1))+1),
+			(floor(random()*(1000-1+1))+1)*1000,
+			'active');
+		end loop;
+END
+$BODY$;
